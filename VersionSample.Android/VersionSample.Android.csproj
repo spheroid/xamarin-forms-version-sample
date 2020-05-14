@@ -94,5 +94,10 @@
       <Name>VersionSample</Name>
     </ProjectReference>
   </ItemGroup>
- <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <Target Name="SetAppVersion" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <AndroidManifestPlaceholders>versionName=$(ReleaseVersion)</AndroidManifestPlaceholders>
+    </PropertyGroup>
+  </Target>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>
