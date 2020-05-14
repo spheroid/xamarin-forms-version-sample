@@ -95,8 +95,20 @@
     </ProjectReference>
   </ItemGroup>
   <Target Name="SetAppVersion" BeforeTargets="BeforeBuild">
+    <Exec Command="git show-ref --quiet refs/heads/master &amp;&amp; echo master || echo origin/master" ConsoleToMsBuild="true">
+        <Output TaskParameter="ConsoleOutput" PropertyName="GitBranchName" />
+    </Exec>
+    <Exec Command="git rev-list --count --first-parent HEAD" ConsoleToMsBuild="true">
+        <Output TaskParameter="ConsoleOutput" PropertyName="GitCommitCount" />
+    </Exec>
+    <Exec Command="git rev-list --count --first-parent $(GitBranchName).." ConsoleToMsBuild="true">
+        <Output TaskParameter="ConsoleOutput" PropertyName="GitBranchCommitCount" />
+    </Exec>
+    <CreateProperty Value="$([System.String]::Format('{0}{1:000}', $([MSBuild]::Subtract($(GitCommitCount), $(GitBranchCommitCount))), $([System.Int32]::Parse($(GitBranchCommitCount)))))">
+        <Output TaskParameter="Value" PropertyName="BuildNumber" />
+    </CreateProperty>
     <PropertyGroup>
-      <AndroidManifestPlaceholders>versionName=$(ReleaseVersion)</AndroidManifestPlaceholders>
+      <AndroidManifestPlaceholders>versionCode=$(BuildNumber);versionName=$(ReleaseVersion)</AndroidManifestPlaceholders>
     </PropertyGroup>
   </Target>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
